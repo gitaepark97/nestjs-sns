@@ -9,6 +9,10 @@ export class MockPostRepository {
     this.posts.push(post);
     return post;
   }
+
+  async findAll() {
+    return this.posts;
+  }
 }
 
 describe('PostRepository', () => {
@@ -36,6 +40,27 @@ describe('PostRepository', () => {
 
       // then
       expect(result.content).toBe(post.content);
+    });
+  });
+
+  describe('findAll', () => {
+    it('', async () => {
+      // given
+      const count = 10;
+      const posts = [];
+      for (let i = 1; i <= count; i++) {
+        posts.push(Post.builder().set('content', `content${i}`).build());
+      }
+      await Promise.all(posts.map((post) => repository.save(post)));
+
+      // when
+      const result = await repository.findAll();
+
+      // then
+      expect(result.length).toBe(count);
+      result.forEach((post) => {
+        expect(post.content).toEqual(expect.any(String));
+      });
     });
   });
 });

@@ -11,4 +11,8 @@ export class PostService {
     const post = Post.builder().set('content', dto.content).build();
     return this.postRepository.save(post);
   }
+
+  getPosts(): Promise<Post[]> {
+    return this.postRepository.findAll();
+  }
 }

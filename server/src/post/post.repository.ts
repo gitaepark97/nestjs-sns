@@ -7,4 +7,8 @@ export class PostRepository {
     this.posts.push(post);
     return post;
   }
+
+  async findAll() {
+    return this.posts;
+  }
 }

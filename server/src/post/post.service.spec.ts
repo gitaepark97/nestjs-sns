@@ -36,4 +36,40 @@ describe('PostService', () => {
       expect(result.content).toBe(dto.content);
     });
   });
+
+  describe('createPost', () => {
+    it('success', async () => {
+      // given
+      const dto: CreatePostDto = {
+        content: 'content',
+      };
+
+      // when
+      const result = await service.createPost(dto);
+
+      // then
+      expect(result.content).toBe(dto.content);
+    });
+  });
+
+  describe('createPost', () => {
+    it('success', async () => {
+      // given
+      const count = 10;
+      const dtos: CreatePostDto[] = [];
+      for (let i = 1; i <= count; i++) {
+        dtos.push({ content: `content${i}` });
+      }
+      await Promise.all(dtos.map((dto) => service.createPost(dto)));
+
+      // when
+      const result = await service.getPosts();
+
+      // then
+      expect(result.length).toBe(count);
+      result.forEach((post) => {
+        expect(post.content).toEqual(expect.any(String));
+      });
+    });
+  });
 });
