@@ -6,8 +6,12 @@ export class MockPostRepository {
   private readonly posts: Post[] = [];
 
   async save(post: Post) {
-    this.posts.push(post);
-    return post;
+    const newPost = Post.builder()
+      .set('id', this.posts.length + 1)
+      .set('content', post.content)
+      .build();
+    this.posts.push(newPost);
+    return newPost;
   }
 
   async findAll() {
@@ -39,6 +43,7 @@ describe('PostRepository', () => {
       const result = await repository.save(post);
 
       // then
+      expect(result.id).toEqual(expect.any(Number));
       expect(result.content).toBe(post.content);
     });
   });
@@ -59,6 +64,7 @@ describe('PostRepository', () => {
       // then
       expect(result.length).toBe(count);
       result.forEach((post) => {
+        expect(post.id).toEqual(expect.any(Number));
         expect(post.content).toEqual(expect.any(String));
       });
     });

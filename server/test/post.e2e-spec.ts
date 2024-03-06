@@ -33,6 +33,7 @@ describe('AuthController (e2e)', () => {
 
       // then
       expect(statusCode).toBe(HttpStatus.CREATED);
+      expect(responseBody.id).toEqual(expect.any(Number));
       expect(responseBody.content).toBe(requestBody.content);
     });
   });
@@ -60,6 +61,7 @@ describe('AuthController (e2e)', () => {
       expect(statusCode).toBe(HttpStatus.OK);
       expect(responseBody.posts.length).toBe(count);
       responseBody.posts.forEach((post: Post) => {
+        expect(post.id).toEqual(expect.any(Number));
         expect(post.content).toEqual(expect.any(String));
       });
     });

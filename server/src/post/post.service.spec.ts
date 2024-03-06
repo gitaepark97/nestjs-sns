@@ -48,6 +48,7 @@ describe('PostService', () => {
       const result = await service.createPost(dto);
 
       // then
+      expect(result.id).toEqual(expect.any(Number));
       expect(result.content).toBe(dto.content);
     });
   });
@@ -68,6 +69,7 @@ describe('PostService', () => {
       // then
       expect(result.length).toBe(count);
       result.forEach((post) => {
+        expect(post.id).toEqual(expect.any(Number));
         expect(post.content).toEqual(expect.any(String));
       });
     });
