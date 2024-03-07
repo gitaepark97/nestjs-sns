@@ -11,6 +11,7 @@ services:
       - MYSQL_USER=sns_local_user
       - MYSQL_PASSWORD=sns_local_password
       - MYSQL_DATABASE=sns_local
+      - TZ=Asia/Seoul
     volumes:
       - sns-local-data:/var/lib/mysql
 
