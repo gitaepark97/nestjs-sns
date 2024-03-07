@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Post } from './domain/post';
+import { Post, PostId } from './domain/post';
 import { PostRepository } from './post.repository';
 
 export class MockPostRepository {
   private readonly posts: Post[] = [];
 
-  async save(post: Post) {
+  async save(post: Post): Promise<Post> {
     const newPost = Post.builder()
       .set('id', this.posts.length + 1)
       .set('content', post.content)
@@ -14,8 +14,12 @@ export class MockPostRepository {
     return newPost;
   }
 
-  async findAll() {
+  async findAll(): Promise<Post[]> {
     return this.posts;
+  }
+
+  async findById(postId: PostId): Promise<Post | null> {
+    return this.posts.filter((post) => post.id === postId)[0] || null;
   }
 }
 
@@ -67,6 +71,33 @@ describe('PostRepository', () => {
         expect(post.id).toEqual(expect.any(Number));
         expect(post.content).toEqual(expect.any(String));
       });
+    });
+  });
+
+  describe('findById', () => {
+    it('success post', async () => {
+      // given
+      const post = await repository.save(
+        Post.builder().set('content', 'content').build(),
+      );
+
+      // when
+      const result = await repository.findById(post.id);
+
+      // then
+      expect(result).toBeDefined();
+      expect(result!.id).toBe(post.id);
+      expect(result!.content).toBe(post.content);
+    });
+
+    it('success null', async () => {
+      // given
+
+      // when
+      const result = await repository.findById(0);
+
+      // then
+      expect(result).toBeNull();
     });
   });
 });

@@ -53,7 +53,7 @@ describe('PostService', () => {
     });
   });
 
-  describe('createPost', () => {
+  describe('getPosts', () => {
     it('success', async () => {
       // given
       const count = 10;
@@ -72,6 +72,31 @@ describe('PostService', () => {
         expect(post.id).toEqual(expect.any(Number));
         expect(post.content).toEqual(expect.any(String));
       });
+    });
+  });
+
+  describe('getPost', () => {
+    it('success', async () => {
+      // given
+      const post = await service.createPost({ content: 'content' });
+
+      // when
+      const result = await service.getPost(post.id);
+
+      // then
+      expect(result.id).toBe(post.id);
+      expect(result.content).toBe(post.content);
+    });
+
+    it('not found post', async () => {
+      // given
+
+      // when
+      await expect(async () => await service.getPost(0)).rejects.toThrow(
+        '해당 ID의 Post가 없습니다.',
+      );
+
+      // then
     });
   });
 });

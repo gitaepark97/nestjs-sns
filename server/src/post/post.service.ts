@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Post } from './domain/post';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Post, PostId } from './domain/post';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostRepository } from './post.repository';
 
@@ -14,5 +14,11 @@ export class PostService {
 
   getPosts(): Promise<Post[]> {
     return this.postRepository.findAll();
+  }
+
+  async getPost(postId: PostId): Promise<Post> {
+    const post = await this.postRepository.findById(postId);
+    if (!post) throw new NotFoundException('해당 ID의 Post가 없습니다.');
+    return post;
   }
 }
