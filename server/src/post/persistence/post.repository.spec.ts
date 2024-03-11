@@ -1,5 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Post, PostId } from './domain/post';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from 'src/config/config.module';
+import { Post, PostId } from '../domain/post';
+import { PostEntity } from './entity/post.entity';
 import { PostRepository } from './post.repository';
 
 export class MockPostRepository {
@@ -28,6 +31,7 @@ describe('PostRepository', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule, TypeOrmModule.forFeature([PostEntity])],
       providers: [PostRepository],
     }).compile();
 

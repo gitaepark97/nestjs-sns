@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreatePostDto } from './dto/create-post.dto';
-import { PostRepository } from './post.repository';
-import { MockPostRepository } from './post.repository.spec';
+import { PostRepository } from './persistence/post.repository';
+import { MockPostRepository } from './persistence/post.repository.spec';
 import { PostService } from './post.service';
 
 describe('PostService', () => {
