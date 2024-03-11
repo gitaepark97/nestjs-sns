@@ -27,4 +27,8 @@ export class PostRepository {
     });
     return entity && PostMapper.toDomain(entity);
   }
+
+  async delete(postId: PostId): Promise<void> {
+    await this.postEntityRepository.delete(postId);
+  }
 }

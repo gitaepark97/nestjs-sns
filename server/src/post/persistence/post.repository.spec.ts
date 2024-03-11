@@ -32,6 +32,10 @@ export class MockPostRepository {
   async findById(postId: PostId): Promise<Post | null> {
     return this.posts.filter((post) => post.id === postId)[0] || null;
   }
+
+  async delete(postId: PostId): Promise<void> {
+    this.posts.filter((post) => post.id !== postId);
+  }
 }
 
 describe('PostRepository', () => {
@@ -110,6 +114,20 @@ describe('PostRepository', () => {
 
       // then
       expect(result).toBeNull();
+    });
+  });
+
+  describe('delete', () => {
+    it('success', async () => {
+      // given
+      const post = await repository.save(
+        Post.builder().set('content', 'content').build(),
+      );
+
+      // when
+      await repository.delete(post.id);
+
+      // then
     });
   });
 });

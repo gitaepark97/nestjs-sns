@@ -29,4 +29,10 @@ export class PostService {
     dto.content && post.changeContent(dto.content);
     return this.postRepository.save(post);
   }
+
+  async deletePost(postId: PostId): Promise<void> {
+    const post = await this.getPost(postId);
+
+    await this.postRepository.delete(post.id);
+  }
 }

@@ -159,4 +159,34 @@ describe('AuthController (e2e)', () => {
       expect(responseBody.message).toBe('해당 ID의 Post가 없습니다.');
     });
   });
+
+  describe('/posts/:postId (DELETE)', () => {
+    it('success', async () => {
+      // given
+      const { body: post } = await request(app.getHttpServer())
+        .post('/posts')
+        .send({ content: 'content' });
+
+      // when
+      const { statusCode } = await request(app.getHttpServer()).delete(
+        `/posts/${post.id}`,
+      );
+
+      // then
+      expect(statusCode).toBe(HttpStatus.OK);
+    });
+
+    it('not found post', async () => {
+      // given
+
+      // when
+      const { statusCode, body: responseBody } = await request(
+        app.getHttpServer(),
+      ).delete('/posts/0');
+
+      // then
+      expect(statusCode).toBe(HttpStatus.NOT_FOUND);
+      expect(responseBody.message).toBe('해당 ID의 Post가 없습니다.');
+    });
+  });
 });

@@ -140,4 +140,27 @@ describe('PostService', () => {
       // then
     });
   });
+
+  describe('modifyPost', () => {
+    it('success', async () => {
+      // given
+      const post = await service.createPost({ content: 'content' });
+
+      // when
+      await service.deletePost(post.id);
+
+      // then
+    });
+
+    it('not found post', async () => {
+      // given
+
+      // when
+      await expect(async () => await service.deletePost(0)).rejects.toThrow(
+        '해당 ID의 Post가 없습니다.',
+      );
+
+      // then
+    });
+  });
 });
