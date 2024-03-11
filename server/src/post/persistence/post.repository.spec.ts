@@ -9,12 +9,20 @@ export class MockPostRepository {
   private readonly posts: Post[] = [];
 
   async save(post: Post): Promise<Post> {
-    const newPost = Post.builder()
-      .set('id', this.posts.length + 1)
-      .set('content', post.content)
-      .build();
-    this.posts.push(newPost);
-    return newPost;
+    if (!post.id) {
+      const newPost = Post.builder()
+        .set('id', this.posts.length + 1)
+        .set('content', post.content)
+        .build();
+      this.posts.push(newPost);
+
+      return newPost;
+    } else {
+      let existPost = this.posts.filter((val) => val.id === post.id)[0];
+      existPost = Object.assign(existPost, post);
+
+      return existPost;
+    }
   }
 
   async findAll(): Promise<Post[]> {
@@ -23,6 +31,10 @@ export class MockPostRepository {
 
   async findById(postId: PostId): Promise<Post | null> {
     return this.posts.filter((post) => post.id === postId)[0] || null;
+  }
+
+  async delete(postId: PostId): Promise<void> {
+    this.posts.filter((post) => post.id !== postId);
   }
 }
 
@@ -102,6 +114,20 @@ describe('PostRepository', () => {
 
       // then
       expect(result).toBeNull();
+    });
+  });
+
+  describe('delete', () => {
+    it('success', async () => {
+      // given
+      const post = await repository.save(
+        Post.builder().set('content', 'content').build(),
+      );
+
+      // when
+      await repository.delete(post.id);
+
+      // then
     });
   });
 });

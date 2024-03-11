@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
+import { ModifyPostDto } from './dto/modify-post.dto';
 import { PostService } from './post.service';
 
 @Controller('posts')
@@ -27,5 +30,18 @@ export class PostController {
   @Get(':postId')
   getPost(@Param('postId', ParseIntPipe) postId: number) {
     return this.postService.getPost(postId);
+  }
+
+  @Patch(':postId')
+  modifyPost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() body: ModifyPostDto,
+  ) {
+    return this.postService.modifyPost(postId, body);
+  }
+
+  @Delete(':postId')
+  deletePost(@Param('postId', ParseIntPipe) postId: number) {
+    return this.postService.deletePost(postId);
   }
 }

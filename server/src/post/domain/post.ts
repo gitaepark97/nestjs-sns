@@ -4,9 +4,13 @@ export type PostId = number;
 
 export class Post {
   readonly id: PostId;
-  readonly content: string;
+  content: string;
 
   static builder() {
     return new Builder(this);
+  }
+
+  changeContent(content: string) {
+    this.content = content;
   }
 }
