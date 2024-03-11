@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreatePostDto } from './dto/create-post.dto';
+import { ModifyPostDto } from './dto/modify-post.dto';
 import { PostRepository } from './persistence/post.repository';
 import { MockPostRepository } from './persistence/post.repository.spec';
 import { PostService } from './post.service';
@@ -95,6 +96,46 @@ describe('PostService', () => {
       await expect(async () => await service.getPost(0)).rejects.toThrow(
         '해당 ID의 Post가 없습니다.',
       );
+
+      // then
+    });
+  });
+
+  describe('modifyPost', () => {
+    it('success modify nothing', async () => {
+      // given
+      const post = await service.createPost({ content: 'content' });
+      const dto: ModifyPostDto = {};
+
+      // when
+      const result = await service.modifyPost(post.id, dto);
+
+      // then
+      expect(result.id).toBe(post.id);
+      expect(result.content).toBe(post.content);
+    });
+
+    it('success modify content', async () => {
+      // given
+      const post = await service.createPost({ content: 'content' });
+      const dto: ModifyPostDto = { content: 'modified content' };
+
+      // when
+      const result = await service.modifyPost(post.id, dto);
+
+      // then
+      expect(result.id).toBe(post.id);
+      expect(result.content).toBe(dto.content);
+    });
+
+    it('not found post', async () => {
+      // given
+      const dto: ModifyPostDto = {};
+
+      // when
+      await expect(
+        async () => await service.modifyPost(0, dto),
+      ).rejects.toThrow('해당 ID의 Post가 없습니다.');
 
       // then
     });

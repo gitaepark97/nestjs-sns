@@ -9,12 +9,20 @@ export class MockPostRepository {
   private readonly posts: Post[] = [];
 
   async save(post: Post): Promise<Post> {
-    const newPost = Post.builder()
-      .set('id', this.posts.length + 1)
-      .set('content', post.content)
-      .build();
-    this.posts.push(newPost);
-    return newPost;
+    if (!post.id) {
+      const newPost = Post.builder()
+        .set('id', this.posts.length + 1)
+        .set('content', post.content)
+        .build();
+      this.posts.push(newPost);
+
+      return newPost;
+    } else {
+      let existPost = this.posts.filter((val) => val.id === post.id)[0];
+      existPost = Object.assign(existPost, post);
+
+      return existPost;
+    }
   }
 
   async findAll(): Promise<Post[]> {
