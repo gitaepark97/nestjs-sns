@@ -17,13 +17,16 @@ export class PostRepository {
   }
 
   async findAll(): Promise<Post[]> {
-    const entities = await this.postEntityRepository.find();
+    const entities = await this.postEntityRepository.find({
+      relations: ['user'],
+    });
     return PostMapper.toDomains(entities);
   }
 
   async findById(postId: PostId): Promise<Post | null> {
     const entity = await this.postEntityRepository.findOne({
       where: { id: postId },
+      relations: ['user'],
     });
     return entity && PostMapper.toDomain(entity);
   }

@@ -1,4 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserRepository } from 'src/user/persistence/user.repository';
+import { MockUserRepository } from 'src/user/persistence/user.repository.spec';
+import { UserService } from 'src/user/user.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { ModifyPostDto } from './dto/modify-post.dto';
 import { PostRepository } from './persistence/post.repository';
@@ -11,6 +14,8 @@ describe('PostService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        { provide: UserRepository, useClass: MockUserRepository },
+        UserService,
         { provide: PostRepository, useClass: MockPostRepository },
         PostService,
       ],
@@ -26,30 +31,18 @@ describe('PostService', () => {
   describe('createPost', () => {
     it('success', async () => {
       // given
+      const username = 'username';
       const dto: CreatePostDto = {
         content: 'content',
       };
 
       // when
-      const result = await service.createPost(dto);
-
-      // then
-      expect(result.content).toBe(dto.content);
-    });
-  });
-
-  describe('createPost', () => {
-    it('success', async () => {
-      // given
-      const dto: CreatePostDto = {
-        content: 'content',
-      };
-
-      // when
-      const result = await service.createPost(dto);
+      const result = await service.createPost(username, dto);
 
       // then
       expect(result.id).toEqual(expect.any(Number));
+      expect(result.user.id).toEqual(expect.any(Number));
+      expect(result.user.username).toBe(username);
       expect(result.content).toBe(dto.content);
     });
   });
@@ -57,12 +50,13 @@ describe('PostService', () => {
   describe('getPosts', () => {
     it('success', async () => {
       // given
+      const username = 'username';
       const count = 10;
       const dtos: CreatePostDto[] = [];
       for (let i = 1; i <= count; i++) {
         dtos.push({ content: `content${i}` });
       }
-      await Promise.all(dtos.map((dto) => service.createPost(dto)));
+      await Promise.all(dtos.map((dto) => service.createPost(username, dto)));
 
       // when
       const result = await service.getPosts();
@@ -71,6 +65,8 @@ describe('PostService', () => {
       expect(result.length).toBe(count);
       result.forEach((post) => {
         expect(post.id).toEqual(expect.any(Number));
+        expect(post.user.id).toEqual(expect.any(Number));
+        expect(post.user.username).toBe(username);
         expect(post.content).toEqual(expect.any(String));
       });
     });
@@ -79,13 +75,16 @@ describe('PostService', () => {
   describe('getPost', () => {
     it('success', async () => {
       // given
-      const post = await service.createPost({ content: 'content' });
+      const username = 'username';
+      const post = await service.createPost(username, { content: 'content' });
 
       // when
       const result = await service.getPost(post.id);
 
       // then
       expect(result.id).toBe(post.id);
+      expect(result.user.id).toEqual(expect.any(Number));
+      expect(result.user.username).toBe(username);
       expect(result.content).toBe(post.content);
     });
 
@@ -104,27 +103,33 @@ describe('PostService', () => {
   describe('modifyPost', () => {
     it('success modify nothing', async () => {
       // given
-      const post = await service.createPost({ content: 'content' });
+      const username = 'username';
+      const post = await service.createPost(username, { content: 'content' });
       const dto: ModifyPostDto = {};
 
       // when
-      const result = await service.modifyPost(post.id, dto);
+      const result = await service.modifyPost(post.id, username, dto);
 
       // then
       expect(result.id).toBe(post.id);
+      expect(result.user.id).toEqual(expect.any(Number));
+      expect(result.user.username).toBe(username);
       expect(result.content).toBe(post.content);
     });
 
     it('success modify content', async () => {
       // given
-      const post = await service.createPost({ content: 'content' });
+      const username = 'username';
+      const post = await service.createPost('username', { content: 'content' });
       const dto: ModifyPostDto = { content: 'modified content' };
 
       // when
-      const result = await service.modifyPost(post.id, dto);
+      const result = await service.modifyPost(post.id, username, dto);
 
       // then
       expect(result.id).toBe(post.id);
+      expect(result.user.id).toEqual(expect.any(Number));
+      expect(result.user.username).toBe(username);
       expect(result.content).toBe(dto.content);
     });
 
@@ -134,8 +139,21 @@ describe('PostService', () => {
 
       // when
       await expect(
-        async () => await service.modifyPost(0, dto),
+        async () => await service.modifyPost(0, 'username', dto),
       ).rejects.toThrow('해당 ID의 Post가 없습니다.');
+
+      // then
+    });
+
+    it('forbidden', async () => {
+      // given
+      const post = await service.createPost('username', { content: 'content' });
+      const dto: ModifyPostDto = {};
+
+      // when
+      await expect(
+        async () => await service.modifyPost(post.id, 'wrong username', dto),
+      ).rejects.toThrow('작성자만 수정 가능합니다.');
 
       // then
     });
@@ -144,10 +162,11 @@ describe('PostService', () => {
   describe('modifyPost', () => {
     it('success', async () => {
       // given
-      const post = await service.createPost({ content: 'content' });
+      const username = 'username';
+      const post = await service.createPost(username, { content: 'content' });
 
       // when
-      await service.deletePost(post.id);
+      await service.deletePost(post.id, username);
 
       // then
     });
@@ -156,9 +175,21 @@ describe('PostService', () => {
       // given
 
       // when
-      await expect(async () => await service.deletePost(0)).rejects.toThrow(
-        '해당 ID의 Post가 없습니다.',
-      );
+      await expect(
+        async () => await service.deletePost(0, 'username'),
+      ).rejects.toThrow('해당 ID의 Post가 없습니다.');
+
+      // then
+    });
+
+    it('forbidden', async () => {
+      // given
+      const post = await service.createPost('username', { content: 'content' });
+
+      // when
+      await expect(
+        async () => await service.deletePost(post.id, 'wrong username'),
+      ).rejects.toThrow('작성자만 삭제 가능합니다.');
 
       // then
     });
