@@ -1,7 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { User } from './domain/user';
 import { UserRepository } from './persistence/user.repository';
 import { MockUserRepository } from './persistence/user.repository.spec';
 import { UserService } from './user.service';
+
+export class MockUserService {
+  async getUserByUsername(username: string): Promise<User> {
+    return User.builder().set('id', 1).set('username', username).build();
+  }
+}
 
 describe('UserService', () => {
   let service: UserService;

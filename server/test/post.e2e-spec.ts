@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
+import { AllExceptionsFilter } from 'src/common/all-exception.filter';
 import { Post } from 'src/post/domain/post';
 import { CreatePostDto } from 'src/post/dto/create-post.dto';
 import { ModifyPostDto } from 'src/post/dto/modify-post.dto';
@@ -15,6 +16,7 @@ describe('AuthController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalFilters(app.get(AllExceptionsFilter));
     await app.init();
   });
 
@@ -40,24 +42,59 @@ describe('AuthController (e2e)', () => {
       expect(responseBody.user.username).toEqual(username);
       expect(responseBody.content).toBe(requestBody.content);
     });
+
+    it('concurrency success', async () => {
+      // given
+      const username = 'username';
+      const requestBody: CreatePostDto = {
+        content: 'contet',
+      };
+      const count = 10;
+
+      // when
+      const responses = await Promise.allSettled(
+        Array.from({ length: count }, () =>
+          request(app.getHttpServer())
+            .post(`/posts?username=${username}`)
+            .send(requestBody),
+        ),
+      );
+
+      // then
+      expect(responses.length).toBe(count);
+      responses.forEach((response: any) => {
+        switch (response.value.statusCode) {
+          case HttpStatus.CREATED:
+            expect(response.value._body.id).toEqual(expect.any(Number));
+            expect(response.value._body.user.id).toEqual(expect.any(Number));
+            expect(response.value._body.user.username).toEqual(username);
+            expect(response.value._body.content).toBe(requestBody.content);
+            break;
+          case HttpStatus.INTERNAL_SERVER_ERROR:
+            expect(response.value._body.message).toBe('Internal server error');
+            break;
+          default:
+            throw Error();
+        }
+      });
+    });
   });
 
   describe('/posts (GET)', () => {
     it('success', async () => {
       // given
       const username = 'username';
-      const count = 10;
+
       const requestBodys: CreatePostDto[] = [];
+      const count = 10;
       for (let i = 1; i <= count; i++) {
         requestBodys.push({ content: `content${i}` });
       }
-      await Promise.all(
-        requestBodys.map((requestBody) =>
-          request(app.getHttpServer())
-            .post(`/posts?username=${username}`)
-            .send(requestBody),
-        ),
-      );
+      for await (const requestBody of requestBodys) {
+        await request(app.getHttpServer())
+          .post(`/posts?username=${username}`)
+          .send(requestBody);
+      }
 
       // when
       const { statusCode, body: responseBody } = await request(

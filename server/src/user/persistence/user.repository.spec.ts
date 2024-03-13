@@ -9,6 +9,9 @@ export class MockUserRepository {
   private readonly users: User[] = [];
 
   async save(user: User): Promise<User> {
+    const existUser = await this.findByUsername(user.username);
+    if (existUser) throw Error();
+
     const newUser = User.builder()
       .set('id', this.users.length + 1)
       .set('username', user.username)

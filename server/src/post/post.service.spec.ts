@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserRepository } from 'src/user/persistence/user.repository';
-import { MockUserRepository } from 'src/user/persistence/user.repository.spec';
 import { UserService } from 'src/user/user.service';
+import { MockUserService } from 'src/user/user.service.spec';
 import { CreatePostDto } from './dto/create-post.dto';
 import { ModifyPostDto } from './dto/modify-post.dto';
 import { PostRepository } from './persistence/post.repository';
@@ -14,8 +13,7 @@ describe('PostService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: UserRepository, useClass: MockUserRepository },
-        UserService,
+        { provide: UserService, useClass: MockUserService },
         { provide: PostRepository, useClass: MockPostRepository },
         PostService,
       ],
