@@ -10,6 +10,6 @@ export class Builder<T extends object> {
   }
 
   build() {
-    return Object.assign(new this.cls(), this.property);
+    return Object.assign(new this.cls(), this.property) as T;
   }
 }
