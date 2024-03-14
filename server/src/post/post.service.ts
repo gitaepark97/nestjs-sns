@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { UserId } from 'src/user/domain/user';
 import { UserService } from 'src/user/user.service';
 import { Post, PostId } from './domain/post';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -16,8 +17,8 @@ export class PostService {
     private readonly postRepository: PostRepository,
   ) {}
 
-  async createPost(username: string, dto: CreatePostDto): Promise<Post> {
-    const user = await this.userService.getUserByUsername(username);
+  async createPost(userId: UserId, dto: CreatePostDto): Promise<Post> {
+    const user = await this.userService.getUser(userId);
 
     const post = Post.builder()
       .set('user', user)
@@ -38,22 +39,22 @@ export class PostService {
 
   async modifyPost(
     postId: PostId,
-    username: string,
+    userId: UserId,
     dto: ModifyPostDto,
   ): Promise<Post> {
     const post = await this.getPost(postId);
 
-    if (username !== post.user.username)
+    if (userId !== post.user.id)
       throw new ForbiddenException('작성자만 수정 가능합니다.');
 
     dto.content && post.changeContent(dto.content);
     return this.postRepository.save(post);
   }
 
-  async deletePost(postId: PostId, username: string): Promise<void> {
+  async deletePost(postId: PostId, userId: UserId): Promise<void> {
     const post = await this.getPost(postId);
 
-    if (username !== post.user.username)
+    if (userId !== post.user.id)
       throw new ForbiddenException('작성자만 삭제 가능합니다.');
 
     await this.postRepository.delete(post.id);

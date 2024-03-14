@@ -10,6 +10,9 @@ export class UserEntity {
   @Column({ length: 20, unique: true })
   readonly username: string;
 
+  @Column()
+  readonly hashedPassword: string;
+
   static builder() {
     return new Builder(this);
   }

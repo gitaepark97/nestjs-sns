@@ -18,8 +18,11 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post()
-  createPost(@Query('username') username: string, @Body() body: CreatePostDto) {
-    return this.postService.createPost(username, body);
+  createPost(
+    @Query('userId', ParseIntPipe) userId: number,
+    @Body() body: CreatePostDto,
+  ) {
+    return this.postService.createPost(userId, body);
   }
 
   @Get()
@@ -36,17 +39,17 @@ export class PostController {
   @Patch(':postId')
   modifyPost(
     @Param('postId', ParseIntPipe) postId: number,
-    @Query('username') username: string,
+    @Query('userId', ParseIntPipe) userId: number,
     @Body() body: ModifyPostDto,
   ) {
-    return this.postService.modifyPost(postId, username, body);
+    return this.postService.modifyPost(postId, userId, body);
   }
 
   @Delete(':postId')
   deletePost(
     @Param('postId', ParseIntPipe) postId: number,
-    @Query('username') username: string,
+    @Query('userId', ParseIntPipe) userId: number,
   ) {
-    return this.postService.deletePost(postId, username);
+    return this.postService.deletePost(postId, userId);
   }
 }

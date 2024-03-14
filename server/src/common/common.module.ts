@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AllExceptionsFilter } from './all-exception.filter';
+import { AllExceptionsFilter } from './exception/all-exception.filter';
 
 @Module({
   providers: [AllExceptionsFilter],

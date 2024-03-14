@@ -15,6 +15,7 @@ export class MockUserRepository {
     const newUser = User.builder()
       .set('id', this.users.length + 1)
       .set('username', user.username)
+      .set('hashedPassword', user.hashedPassword)
       .build();
     this.users.push(newUser);
 
@@ -49,31 +50,35 @@ describe('UserRepository', () => {
   describe('save', () => {
     it('success', async () => {
       // given
-      const user = User.builder().set('username', 'username').build();
+      const user = User.builder()
+        .set('username', 'username')
+        .set('hashedPassword', 'hashedPassword')
+        .build();
 
       // when
-      const result = await repository.save(user);
+      await repository.save(user);
 
       // then
-      expect(result.id).toEqual(expect.any(Number));
-      expect(result.username).toBe(user.username);
     });
   });
 
   describe('findByUsername', () => {
     it('success user', async () => {
       // given
-      const user = await repository.save(
-        User.builder().set('username', 'username').build(),
-      );
+      const user = User.builder()
+        .set('username', 'username')
+        .set('hashedPassword', 'hashedPassword')
+        .build();
+      await repository.save(user);
 
       // when
       const result = await repository.findByUsername(user.username);
 
       // then
       expect(result).toBeDefined();
-      expect(result!.id).toBe(user.id);
+      expect(result!.id).toEqual(expect.any(Number));
       expect(result!.username).toBe(user.username);
+      expect(result!.hashedPassword).toBe(user.hashedPassword);
     });
 
     it('success null', async () => {
@@ -90,16 +95,18 @@ describe('UserRepository', () => {
   describe('findById', () => {
     it('success user', async () => {
       // given
-      const user = await repository.save(
-        User.builder().set('username', 'username').build(),
-      );
+      const user = User.builder()
+        .set('username', 'username')
+        .set('hashedPassword', 'hashedPassword')
+        .build();
+      await repository.save(user);
 
       // when
-      const result = await repository.findById(user.id);
+      const result = await repository.findById(1);
 
       // then
       expect(result).toBeDefined();
-      expect(result!.id).toBe(user.id);
+      expect(result!.id).toBe(1);
       expect(result!.username).toBe(user.username);
     });
 

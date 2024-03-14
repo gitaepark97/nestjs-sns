@@ -10,10 +10,9 @@ export class UserRepository {
     private readonly userEntityRepository: Repository<UserEntity>,
   ) {}
 
-  async save(user: User): Promise<User> {
-    let entity = UserMapper.toEntity(user);
-    entity = await this.userEntityRepository.save(entity);
-    return UserMapper.toDomain(entity);
+  async save(user: User): Promise<void> {
+    const entity = UserMapper.toEntity(user);
+    await this.userEntityRepository.save(entity);
   }
 
   async findByUsername(username: string): Promise<User | null> {

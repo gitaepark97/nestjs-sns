@@ -58,8 +58,16 @@ describe('PostRepository', () => {
     repository = module.get<PostRepository>(PostRepository);
     const userRepository = module.get<UserRepository>(UserRepository);
 
-    user = User.builder().set('username', 'username').build();
-    user = await userRepository.save(user);
+    user = User.builder()
+      .set('username', 'username')
+      .set('hashedPassword', 'hashedPassword')
+      .build();
+    await userRepository.save(user);
+    user = User.builder()
+      .set('id', 1)
+      .set('username', user.username)
+      .set('hashedPassword', user.hashedPassword)
+      .build();
   });
 
   it('should be defined', () => {

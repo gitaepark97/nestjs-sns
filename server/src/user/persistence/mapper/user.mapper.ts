@@ -6,6 +6,7 @@ export abstract class UserMapper {
     return UserEntity.builder()
       .set('id', domain.id)
       .set('username', domain.username)
+      .set('hashedPassword', domain.hashedPassword)
       .build();
   }
 
@@ -13,6 +14,7 @@ export abstract class UserMapper {
     return User.builder()
       .set('id', entity.id)
       .set('username', entity.username)
+      .set('hashedPassword', entity.hashedPassword)
       .build();
   }
 }
